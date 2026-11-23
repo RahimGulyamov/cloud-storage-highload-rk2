@@ -1,0 +1,68 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam ArrowColor #4B6179
+skinparam ArrowThickness 1.3
+skinparam rectangleBorderColor #44627F
+skinparam databaseBorderColor #44627F
+skinparam packageBorderColor #9BB0C6
+skinparam titleFontSize 24
+skinparam nodesep 45
+skinparam ranksep 55
+top to bottom direction
+
+title CloudDrive — 1 млн MAU\nControl plane и передача файлов масштабируются отдельно
+caption Основные потоки. Полная таблица взаимодействий и ресурсов находится в README.
+
+actor "Web / mobile client" as Client #DCEBFF
+rectangle "DNS / один активный регион записи\nDR switch только после fencing" as DNS #EAF0F8
+
+package "CONTROL PLANE / 3 AZ" #EDF4FF {
+  rectangle "Managed API L4 + Envoy ×3\nTLS / HTTP2 / least request\nhealth checks / request limits" as Edge #DCEBFF
+  rectangle "Core API ×9 / Go\nAccounts, quota, folders, versions, sharing\nPgBouncer; no file buffers" as Core #DCEBFF
+  database "PostgreSQL ×3 / Patroni\nprimary + 2 replicas; strict sync to 1\nCatalog / quota / outbox / inbox\netcd quorum 2/3" as PG #FFF0D2
+  database "Redis ×3 / Sentinel\nOptional cache, TTL\nNo authoritative ACL/quota" as Redis #FFF0D2
+}
+
+package "DATA PLANE / 3 AZ" #F4EEFF {
+  rectangle "Managed DATA L4 + RGW ×6\n10 Gbit/s surviving public path\nS3 UploadPart / GET / Range" as RGW #EBDDFF
+  storage "Ceph / 3 replicas / min_size=2\nAZ-A: 9 HDD hosts, 1 copy\nAZ-B: 9 HDD hosts, 1 copy\nAZ-C: 9 HDD hosts, 1 copy\n27 ×12 ×20 TB = 6.48 PB raw\nMON/MGR + NVMe index pool ×3" as Ceph #EBDDFF
+}
+
+package "BACKGROUND / отдельные resource pools" #EAF7F0 {
+  queue "Outbox relay → Kafka ×3\nRF=3, minISR=2, acks=all\n24 partitions; 7-day retention" as Bus #D9F0E1
+  rectangle "Независимые consumer groups\nScan / ClamAV ≤9 | Preview / libvips ×6\nIngest ×3 | dbt + GC CronJobs\nIdempotent effects; bounded retry / DLQ" as Workers #D9F0E1
+  database "ClickHouse ×3 / Keeper 2/3\nEvents, logs, sampled traces\nDeduplicated daily marts" as CH #FFF0D2
+}
+
+storage "OFFSITE / другой регион и аккаунт\nManaged S3 + Object Lock + verified manifests\n1.6 PB blob + 16 TB DB backup quota\npgBackRest full/incremental + WAL\nRTO read-only ≤4 h; target RPO ≤15 min" as Backup #FFDCD8
+
+Client --> DNS : resolve
+DNS --> Edge : API endpoint
+Client --> RGW : signed parts / file bytes
+Edge --> Core : REST / small JSON
+Core --> PG : SQL transactions
+Core --> Redis : bounded cache lookup
+Core --> RGW : create / complete / HEAD
+RGW --> Ceph : RADOS / CRUSH by AZ
+PG ..> Bus : committed outbox
+Bus ..> Workers : at-least-once
+Workers ..> CH : batches / aggregates
+Workers --> RGW : stream scan / preview
+Ceph ..> Backup : copy workers / checksum / manifest
+PG ..> Backup : backup + continuous WAL
+
+legend bottom
+  Сплошные стрелки: синхронные вызовы / байты.
+  Пунктирные стрелки: события / фоновые копии.
+  Stateful узлы отделены от 9 Kubernetes worker VM.
+  Prometheus ×2, Alertmanager ×3, Grafana и OTEL наблюдают все слои.
+  Между PostgreSQL и S3 нет общей ACID-транзакции.
+endlegend
+@enduml

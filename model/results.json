@@ -1,0 +1,406 @@
+{
+  "assumptions": {
+    "registered_users": 2000000,
+    "mau": 1000000,
+    "dau_mau_ratio": 0.25,
+    "peak_factor": 6,
+    "planning_growth_factor": 1.5,
+    "days_per_month": 30,
+    "days_per_year": 365,
+    "live_files_per_registered_user": 100,
+    "folders_per_registered_user": 10,
+    "mean_file_bytes": 4000000,
+    "mean_preview_bytes": 100000,
+    "preview_fraction": 0.5,
+    "new_file_fraction_of_uploads": 0.6,
+    "retention_days": 30,
+    "temporary_ingress_days": 2,
+    "multipart_parts_per_upload": 1.2,
+    "replication_factor": 3,
+    "object_overhead_factor": 1.1,
+    "wire_overhead_factor": 1.15,
+    "metadata_index_factor": 2,
+    "storage_hosts": 27,
+    "availability_zones": 3,
+    "hdd_per_host": 12,
+    "hdd_bytes": 20000000000000,
+    "target_max_storage_utilization": 0.7,
+    "actions": [
+      {
+        "key": "list",
+        "name": "Каталог и метаданные",
+        "per_dau": 20,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 10000
+      },
+      {
+        "key": "upload",
+        "name": "Загрузка новой версии",
+        "per_dau": 2,
+        "api_requests": 2,
+        "request_bytes": 1000,
+        "response_bytes": 1000
+      },
+      {
+        "key": "download",
+        "name": "Получение ссылки на оригинал",
+        "per_dau": 5,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 1000
+      },
+      {
+        "key": "preview",
+        "name": "Получение ссылки на превью",
+        "per_dau": 10,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 1000
+      },
+      {
+        "key": "folder",
+        "name": "Создание / переименование / перемещение",
+        "per_dau": 1,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 1000
+      },
+      {
+        "key": "share",
+        "name": "Создание / отзыв общей ссылки",
+        "per_dau": 0.2,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 1000
+      },
+      {
+        "key": "delete",
+        "name": "Удаление / восстановление",
+        "per_dau": 0.4,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 500
+      },
+      {
+        "key": "versions",
+        "name": "Просмотр версий и корзины",
+        "per_dau": 0.5,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 5000
+      },
+      {
+        "key": "auth",
+        "name": "Вход / обновление сессии",
+        "per_dau": 2,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 2000
+      }
+    ]
+  },
+  "metrics": {
+    "dau": 250000.0,
+    "actions": [
+      {
+        "key": "list",
+        "name": "Каталог и метаданные",
+        "per_dau": 20,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 10000,
+        "actions_day": 5000000.0,
+        "requests_day": 5000000.0,
+        "avg_rps": 57.870370370370374,
+        "peak_rps": 347.22222222222223
+      },
+      {
+        "key": "upload",
+        "name": "Загрузка новой версии",
+        "per_dau": 2,
+        "api_requests": 2,
+        "request_bytes": 1000,
+        "response_bytes": 1000,
+        "actions_day": 500000.0,
+        "requests_day": 1000000.0,
+        "avg_rps": 11.574074074074074,
+        "peak_rps": 69.44444444444444
+      },
+      {
+        "key": "download",
+        "name": "Получение ссылки на оригинал",
+        "per_dau": 5,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 1000,
+        "actions_day": 1250000.0,
+        "requests_day": 1250000.0,
+        "avg_rps": 14.467592592592593,
+        "peak_rps": 86.80555555555556
+      },
+      {
+        "key": "preview",
+        "name": "Получение ссылки на превью",
+        "per_dau": 10,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 1000,
+        "actions_day": 2500000.0,
+        "requests_day": 2500000.0,
+        "avg_rps": 28.935185185185187,
+        "peak_rps": 173.61111111111111
+      },
+      {
+        "key": "folder",
+        "name": "Создание / переименование / перемещение",
+        "per_dau": 1,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 1000,
+        "actions_day": 250000.0,
+        "requests_day": 250000.0,
+        "avg_rps": 2.8935185185185186,
+        "peak_rps": 17.36111111111111
+      },
+      {
+        "key": "share",
+        "name": "Создание / отзыв общей ссылки",
+        "per_dau": 0.2,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 1000,
+        "actions_day": 50000.0,
+        "requests_day": 50000.0,
+        "avg_rps": 0.5787037037037037,
+        "peak_rps": 3.4722222222222223
+      },
+      {
+        "key": "delete",
+        "name": "Удаление / восстановление",
+        "per_dau": 0.4,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 500,
+        "actions_day": 100000.0,
+        "requests_day": 100000.0,
+        "avg_rps": 1.1574074074074074,
+        "peak_rps": 6.944444444444445
+      },
+      {
+        "key": "versions",
+        "name": "Просмотр версий и корзины",
+        "per_dau": 0.5,
+        "api_requests": 1,
+        "request_bytes": 500,
+        "response_bytes": 5000,
+        "actions_day": 125000.0,
+        "requests_day": 125000.0,
+        "avg_rps": 1.4467592592592593,
+        "peak_rps": 8.680555555555555
+      },
+      {
+        "key": "auth",
+        "name": "Вход / обновление сессии",
+        "per_dau": 2,
+        "api_requests": 1,
+        "request_bytes": 1000,
+        "response_bytes": 2000,
+        "actions_day": 500000.0,
+        "requests_day": 500000.0,
+        "avg_rps": 5.787037037037037,
+        "peak_rps": 34.72222222222222
+      }
+    ],
+    "blob_rows": [
+      [
+        "Оригиналы, текущие версии",
+        200000000,
+        800000000000000
+      ],
+      [
+        "Предыдущие версии, 30 суток",
+        6000000.0,
+        24000000000000.0
+      ],
+      [
+        "Корзина, 30 суток",
+        3000000.0,
+        12000000000000.0
+      ],
+      [
+        "Превью JPEG/PNG",
+        100000000.0,
+        10000000000000.0
+      ],
+      [
+        "Multipart / карантин, бюджет 2 суток входа",
+        1000000.0,
+        4000000000000.0
+      ]
+    ],
+    "metadata_rows": [
+      [
+        "Профили и учёт квоты",
+        2000000,
+        1000
+      ],
+      [
+        "Каталоги",
+        20000000,
+        500
+      ],
+      [
+        "Файлы: текущие и tombstones корзины",
+        203000000.0,
+        1000
+      ],
+      [
+        "Версии: текущие + старые + корзина",
+        209000000.0,
+        500
+      ],
+      [
+        "Общие ссылки, до 10% текущих файлов",
+        20000000.0,
+        500
+      ],
+      [
+        "Upload sessions, 1 сутки",
+        500000.0,
+        500
+      ],
+      [
+        "Idempotency keys, 2 суток",
+        2800000.0,
+        500
+      ],
+      [
+        "Outbox, 7 суток",
+        11550000.0,
+        500
+      ],
+      [
+        "Inbox четырёх обработчиков, 7 суток",
+        46200000.0,
+        100
+      ]
+    ],
+    "traffic_rows": [
+      [
+        "Вход: файлы пользователей",
+        2000000000000.0
+      ],
+      [
+        "Вход: тела control API",
+        6287500000.0
+      ],
+      [
+        "Выход: скачивание оригиналов",
+        5000000000000.0
+      ],
+      [
+        "Выход: скачивание превью",
+        250000000000.0
+      ],
+      [
+        "Выход: тела control API",
+        56725000000.0
+      ]
+    ],
+    "s3_rows": [
+      [
+        "CreateMultipartUpload, backend",
+        500000.0
+      ],
+      [
+        "UploadPart, клиенты",
+        600000.0
+      ],
+      [
+        "CompleteMultipartUpload, backend",
+        500000.0
+      ],
+      [
+        "HEAD после завершения, backend",
+        500000.0
+      ],
+      [
+        "GET оригиналов, клиенты",
+        1250000.0
+      ],
+      [
+        "GET превью, клиенты",
+        2500000.0
+      ],
+      [
+        "GET: scan + preview + DR copy",
+        1250000.0
+      ],
+      [
+        "PUT готовых превью",
+        250000.0
+      ],
+      [
+        "DELETE по истечении срока хранения",
+        300000.0
+      ]
+    ],
+    "api_requests_day": 10775000.0,
+    "api_avg_rps": 124.71064814814815,
+    "api_peak_rps": 748.2638888888888,
+    "s3_requests_day": 7650000.0,
+    "s3_peak_rps": 531.25,
+    "registered_users": 2000000,
+    "mau": 1000000,
+    "activity_days_per_mau_month": 7.5,
+    "logical_blob_tb": 850.0,
+    "physical_blob_tb": 2805.0,
+    "year1_physical_blob_tb": 4207.5,
+    "raw_capacity_tb": 6480.0,
+    "base_storage_utilization": 0.43287037037037035,
+    "year1_storage_utilization": 0.6493055555555556,
+    "year1_degraded_storage_utilization": 0.6493055555555556,
+    "metadata_heap_tb": 0.341545,
+    "metadata_indexed_tb": 0.68309,
+    "year1_metadata_indexed_tb": 1.024635,
+    "in_gbps_avg": 0.21363246527777777,
+    "out_gbps_avg": 0.5650679398148147,
+    "in_gbps_peak": 1.2817947916666665,
+    "out_gbps_peak": 3.3904076388888886,
+    "year1_out_gbps_peak": 5.085611458333333,
+    "new_files_day": 300000.0,
+    "overwrites_day": 200000.0,
+    "deletes_day": 100000.0,
+    "mutation_events_day": 900000.0,
+    "critical_events_day": 1650000.0,
+    "net_live_tb_year": 292.0,
+    "year1_live_tb_by_flow": 1092.0,
+    "kafka_events_day": 5400000.0,
+    "kafka_peak_events_sec": 375.0,
+    "kafka_7d_replicated_tb": 0.1134,
+    "clickhouse_90d_replicated_tb": 0.1458,
+    "backup_logical_tb": 1003.2,
+    "year1_backup_logical_tb": 1504.8,
+    "scan_peak_mb_sec_year1": 208.33333333333334,
+    "scan_required_cores_at_60_percent": 18,
+    "preview_peak_images_sec_year1": 26.041666666666664,
+    "preview_required_cores_at_60_percent": 3.472222222222222
+  },
+  "checks": {
+    "MAU at least one million": true,
+    "DAU <= MAU <= registered": true,
+    "all AZs have same host count": true,
+    "one replica per AZ is possible": true,
+    "year-one physical data fits below 70%": true,
+    "zone failure leaves 2 copies below 70%": true,
+    "traffic fits a surviving 10Gbps edge": true,
+    "API at year one fits 6 surviving 250RPS replicas": true,
+    "scan at year one fits 24 surviving cores": true,
+    "preview at year one fits 4 surviving cores": true,
+    "day-flow live growth is below 50% budget": true,
+    "PG data + 20% bloat + 200GB WAL fits 2TB": true,
+    "three-copy Kafka + growth + double retry budget fits 3x0.5TB": true,
+    "backup budget fits 1.6PB": true
+  }
+}

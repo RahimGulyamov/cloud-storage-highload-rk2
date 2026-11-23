@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam sequenceArrowColor #365B7D
+skinparam sequenceLifeLineBorderColor #A8BACB
+skinparam sequenceParticipantBackgroundColor #EAF2FC
+skinparam sequenceParticipantBorderColor #44627F
+skinparam sequenceGroupBackgroundColor #F6F9FC
+skinparam titleFontSize 21
+autonumber
+title Загрузка CloudDrive: сначала объект и проверка, затем публикация версии
+actor "Клиент" as C
+participant "Core API" as API
+database "PostgreSQL\nprimary" as DB
+participant "RGW / Ceph" as S3
+participant "Outbox relay" as R
+queue "Kafka" as K
+participant "Scan worker" as W
+
+C -> API : POST /uploads\nIdempotency-Key, size, expected generation
+API -> DB : TX: lock quota, reserve bytes,\ncreate UPLOADING session + idem result
+DB --> API : session / immutable object key
+API -> S3 : CreateMultipartUpload
+S3 --> API : upload_id
+API -> DB : persist upload_id; reconciliation if interrupted
+API --> C : session + short-lived UploadPart URLs
+
+loop До 4 параллельных частей; размер части 8 МиБ
+  C -> S3 : UploadPart(upload_id, part_no, bytes)
+  S3 --> C : part ETag
+end
+
+C -> API : POST /uploads/{id}/complete\nsame idempotency key on retry
+API -> S3 : CompleteMultipartUpload / HEAD
+S3 --> API : immutable object exists; actual size
+API -> DB : TX: QUARANTINED + scan.requested in outbox
+API --> C : 202: проверка выполняется; старая READY ещё доступна
+
+DB -->> R : poll unpublished outbox
+R -->> K : publish event_id, owner_id, version_id
+K -->> W : scan.requested (duplicates possible)
+W -> S3 : GET stream; checksum / ClamAV
+S3 --> W : bounded stream
+
+alt CLEAN и expected generation совпадает
+  W -> DB : ONE TX: inbox unique(event_id), CAS version,\nREADY + current_version + quota + outbox
+  DB --> W : commit (sync standby in another AZ)
+  W -->> K : commit offset after DB commit
+  C -> API : GET upload status / download ticket
+  API -> DB : primary: READY + current ACL
+  API --> C : GET URL, TTL 60 s
+  C -> S3 : GET / Range GET
+  S3 --> C : original bytes
+else REJECTED / CONFLICT / scan limit
+  W -> DB : terminal status, release reservation once,\nold current version unchanged; GC later
+  W -->> K : commit offset after persistent result
+end
+
+note over DB,W
+  At-least-once delivery + idempotent effect.
+  Offset or Kafka producer idempotence alone does not give exactly-once SQL/S3.
+end note
+note over API,S3
+  Only the backend can create/complete multipart.
+  UploadPart URLs cannot overwrite the completed scanned object.
+  Reconciliation covers a crash between S3 completion and SQL commit.
+end note
+@enduml

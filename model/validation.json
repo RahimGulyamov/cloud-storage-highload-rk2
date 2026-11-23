@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "capacity_checks": 14,
+  "markdown_tables": 24,
+  "local_links_and_anchors": 20,
+  "sources": 22,
+  "diagrams": [
+    {
+      "name": "architecture",
+      "width": 1166,
+      "height": 1690,
+      "png_sha256": "a58201eddd742d712995540d0d1a109a6e5c471234604ea260e0869f45916bfd"
+    },
+    {
+      "name": "upload-sequence",
+      "width": 1626,
+      "height": 1362,
+      "png_sha256": "07441bbbfd246d065166f28f2d7cca03544ac20083348830823c1cb92246cf1b"
+    }
+  ]
+}
